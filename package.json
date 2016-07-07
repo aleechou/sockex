@@ -1,0 +1,14 @@
+{
+  "name": "sockex",
+  "version": "0.0.1",
+  "description": "返回 socket 的原始 sin_addr 和 sin_port，可用于 socks5 动态代理",
+  "main": "sockex.js",
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "^2.0.0"
+  },
+  "scripts": {
+    "test": "node hello.js"
+  },
+  "gypfile": true
+}
