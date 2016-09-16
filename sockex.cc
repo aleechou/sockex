@@ -1,14 +1,26 @@
 #include <nan.h>
 #include "includes/tcp_wrap.h"
+#include <sys/socket.h>
+
+
+// for mac
+#if defined(__APPLE__)
+
+#define SOL_IP IPPROTO_IP
+#define SO_ORIGINAL_DST 80
+
+// int uv___stream_fd(const uv_stream_t* handle);
+// #define uv__stream_fd(handle) (uv___stream_fd((const uv_stream_t*) (handle)))
+
+// for Linux
+#else
+
 #include <linux/netfilter_ipv4.h>
 
+#endif
 
-#if defined(__APPLE__)
-int uv___stream_fd(const uv_stream_t* handle);
-#define uv__stream_fd(handle) (uv___stream_fd((const uv_stream_t*) (handle)))
-#else
+
 #define uv__stream_fd(handle) ((handle)->io_watcher.fd)
-#endif /* defined(__APPLE__) */
 
 void OriginalDst(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
@@ -17,9 +29,11 @@ void OriginalDst(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
     struct sockaddr_in destaddr;
     socklen_t len=sizeof(sockaddr);
-    getsockopt(
-        uv__stream_fd(handle), SOL_IP, SO_ORIGINAL_DST
-        , (struct sockaddr *) &destaddr, &len);
+    // getsockopt(
+    //     uv__stream_fd(handle), SOL_IP, SO_ORIGINAL_DST
+    //     , (struct sockaddr *) &destaddr, &len);
+
+    getsockname(uv__stream_fd(handle),(struct sockaddr *) &destaddr, &len) ;
 
     unsigned short port = ntohs( destaddr.sin_port );
     char * addr = inet_ntoa(destaddr.sin_addr);
